@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "routes": [
+    {
+      "src": "/(composer\\.(json|lock)|supabase_schema\\.sql|README\\.md|\\.htaccess|storage/.*|.*\\.php)",
+      "status": 404
+    },
+    {
+      "src": "/$",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
+}
