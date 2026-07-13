@@ -1,4 +1,4 @@
-async function api(path, options = {}) {
+﻿async function api(path, options = {}) {
   const response = await fetch(path, {
     credentials: 'include',
     headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
@@ -27,7 +27,7 @@ function passwordsMatch(form, passwordName = 'password') {
   const password = form.elements[passwordName];
   const confirmation = form.elements.password_confirmation;
   if (!password || !confirmation || password.value === confirmation.value) return true;
-  alertBox(form, 'Las contrasenas no coinciden.');
+  alertBox(form, 'Las contraseñas no coinciden.');
   confirmation.focus();
   return false;
 }
@@ -195,3 +195,4 @@ if (path.endsWith('/dashboard.html')) {
     window.location.href = '/index.html';
   });
 }
+

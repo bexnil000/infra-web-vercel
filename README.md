@@ -1,55 +1,118 @@
-# NEXCORE - Vercel + Supabase
+# NEXCORE - Documentación técnica
 
-Aplicacion web preparada para Vercel con frontend HTML/CSS/JS, APIs serverless en JavaScript dentro de `/api` y base de datos Supabase. No usa PHP ni XAMPP.
+NEXCORE es una aplicación web desplegable en Vercel para presentar servicios de infraestructura tecnológica y operar un panel privado de usuarios administradores. El proyecto inspeccionado usa frontend HTML/CSS/JavaScript, APIs REST serverless en JavaScript dentro de `/api` y Supabase como backend de datos sobre PostgreSQL.
 
-## Requisitos
+> Nota técnica: en la estructura actual no se encontraron carpetas ni archivos propios de Next.js (`app/`, `pages/`, `next.config.*`) ni TypeScript/Tailwind. Por restricción del proyecto, no se migró la arquitectura. Esta documentación describe la arquitectura real existente.
 
-- Node.js 18 o superior.
-- Cuenta de Vercel.
-- Proyecto de Supabase.
-- Cuenta Gmail con contraseña de aplicacion si usaras SMTP real.
+## Arquitectura
 
-## Instalacion local
+La aplicación sigue una separación Frontend / Backend:
+
+- **Frontend:** páginas HTML estáticas, estilos CSS y JavaScript de interacción.
+- **Backend/API:** funciones serverless compatibles con Vercel dentro de `/api`.
+- **Base de datos:** Supabase con PostgreSQL y acceso mediante REST API de Supabase.
+- **Autenticación:** cookies `HttpOnly` con JWT firmado en servidor.
+- **Servicios externos:** Gmail SMTP mediante Nodemailer para verificación y recuperación de contraseña.
+
+La organización se aproxima a una arquitectura por capas:
+
+- **Presentación:** `*.html`, `css/styles.css`, `js/main.js`, `js/app.js`.
+- **Controladores/API:** `api/*.js`.
+- **Servicios compartidos:** `api/_lib/*.js`.
+- **Persistencia:** Supabase/PostgreSQL, definido en `supabase_schema.sql`.
+
+No se aplica MVC clásico de forma estricta porque no hay motor de vistas en servidor; sin embargo, existe separación clara entre interfaz, controladores API y capa de acceso a datos.
+
+## Tecnologías
+
+- HTML5.
+- CSS3.
+- JavaScript ES Modules.
+- Node.js.
+- Vercel Serverless Functions.
+- Supabase.
+- PostgreSQL.
+- REST API.
+- JWT con `jsonwebtoken`.
+- bcrypt con `bcryptjs`.
+- Nodemailer para SMTP.
+- Docker para contenedorización local.
+
+No se detectó uso real de:
+
+- Next.js.
+- React.
+- TypeScript.
+- Tailwind CSS.
+
+## Estructura del proyecto
+
+```text
+infra-web/
+  api/
+    _lib/
+      auth.js
+      http.js
+      mail.js
+      password.js
+      supabase.js
+    contact.js
+    forgot-password.js
+    login.js
+    logout.js
+    profile.js
+    register.js
+    reset-password.js
+    session.js
+    verify-email.js
+  css/
+    styles.css
+  docs/
+    manual-usuario.md
+    testing/
+      pruebas-funcionales.md
+  js/
+    app.js
+    main.js
+  aviso-privacidad.html
+  dashboard.html
+  forgot_password.html
+  index.html
+  login.html
+  politicas.html
+  register.html
+  reset_password.html
+  verificar.html
+  supabase_schema.sql
+  vercel.json
+  package.json
+  Dockerfile
+  docker-compose.yml
+  .dockerignore
+```
+
+## Instalación local
+
+1. Instala Node.js 18 o superior.
+2. Instala dependencias:
 
 ```bash
 npm install
+```
+
+3. Crea un archivo `.env` local con las variables necesarias.
+4. Ejecuta el entorno local compatible con Vercel:
+
+```bash
 npm run dev
 ```
 
-El comando `npm run dev` usa `vercel dev` para servir HTML y APIs serverless.
-
-## Supabase
-
-1. Crea un proyecto en Supabase.
-2. Abre SQL Editor.
-3. Ejecuta `supabase_schema.sql`.
-4. Copia `Project URL`.
-5. Copia `service_role key`.
-
-Tablas usadas:
-
-- `users`
-- `contact_messages`
-- `password_resets`
-- `remember_tokens`
-
-Campos de seguridad en `users`:
-
-- `failed_login_attempts`
-- `locked_until`
-- `last_login_at`
-- `session_expires_at`
-- `correo_verificado`
-- `email_verification_token`
-
-## Variables de entorno en Vercel
-
-Configura estas variables en Project Settings > Environment Variables:
+## Variables de entorno
 
 ```text
 SUPABASE_URL=https://TU-PROYECTO.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=TU_SERVICE_ROLE_KEY
-JWT_SECRET=usa_una_clave_larga_aleatoria
+JWT_SECRET=clave_larga_y_segura
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USERNAME=tu-correo@gmail.com
@@ -58,21 +121,34 @@ MAIL_FROM_ADDRESS=tu-correo@gmail.com
 MAIL_FROM_NAME=NEXCORE
 ```
 
-`SUPABASE_SERVICE_ROLE_KEY` y `JWT_SECRET` son secretos de servidor. Nunca los pongas en JavaScript del navegador.
+`SUPABASE_SERVICE_ROLE_KEY` y `JWT_SECRET` son secretos de servidor. No deben exponerse en el navegador.
 
-## Gmail SMTP
+## Configuración de Supabase
 
-1. Activa la verificacion en dos pasos de tu cuenta Gmail.
-2. Crea una contraseña de aplicacion.
-3. Usa esa contraseña en `MAIL_PASSWORD`.
-4. En produccion, si SMTP no esta configurado, el sistema no muestra enlaces debug.
-5. En desarrollo local, si SMTP no esta configurado, las APIs pueden devolver un enlace debug para probar verificacion y recuperacion.
+1. Crea un proyecto en Supabase.
+2. Abre SQL Editor.
+3. Ejecuta `supabase_schema.sql`.
+4. Configura las variables `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY`.
 
-## Administrador
+Tablas incluidas:
 
-1. Registrate desde `register.html`.
-2. Verifica tu correo.
-3. En Supabase SQL Editor ejecuta:
+- `users`
+- `contact_messages`
+- `password_resets`
+- `remember_tokens`
+
+Campos de seguridad destacados:
+
+- `correo_verificado`
+- `email_verification_token`
+- `failed_login_attempts`
+- `locked_until`
+- `last_login_at`
+- `session_expires_at`
+
+## Administrador inicial
+
+Después de registrarte y verificar tu correo, ejecuta en Supabase:
 
 ```sql
 update public.users
@@ -80,91 +156,121 @@ set is_admin = true
 where email = 'tu-correo@gmail.com';
 ```
 
-Solo usuarios con `is_admin = true` y correo verificado pueden iniciar sesion y acceder a `dashboard.html`.
+Solo usuarios administradores con correo verificado pueden acceder al dashboard.
 
-## Seguridad implementada
+## APIs REST
 
-- Contraseñas con bcrypt.
-- Politica de contraseña:
-  - minimo 8 caracteres
-  - mayuscula
-  - minuscula
-  - numero
-  - caracter especial
-  - sin espacios
-  - bloqueo de contraseñas debiles o consecutivas
-- Validacion frontend y backend.
-- Sesion con cookie `HttpOnly`, `Secure`, `SameSite=Lax`.
-- Expiracion por inactividad de 15 minutos.
-- Dashboard protegido por `/api/session`.
-- Bloqueo temporal despues de varios intentos fallidos.
-- Verificacion de correo obligatoria.
-- Enlaces debug solo fuera de produccion.
+Todas las APIs devuelven JSON.
 
-## APIs
-
-Todas las APIs responden JSON.
-
-| Ruta | Metodo | Uso |
+| Ruta | Método | Descripción |
 | --- | --- | --- |
-| `/api/register` | `POST` | Registrar usuario y enviar verificacion |
-| `/api/login` | `POST` | Iniciar sesion por correo y contraseña |
-| `/api/logout` | `POST` | Cerrar sesion |
-| `/api/session` | `GET` | Validar sesion y refrescar inactividad |
-| `/api/profile` | `PUT` | Actualizar nombre, apellido o contraseña |
-| `/api/contact` | `POST` | Guardar mensaje de contacto |
-| `/api/forgot-password` | `POST` | Enviar enlace temporal de recuperacion |
-| `/api/reset-password` | `POST` | Cambiar contraseña con token |
-| `/api/verify-email` | `GET` | Confirmar correo con token |
+| `/api/register` | `POST` | Registra usuarios, valida datos, hashea contraseña y envía correo de verificación. |
+| `/api/login` | `POST` | Inicia sesión, valida contraseña, bloquea intentos fallidos y crea cookie JWT. |
+| `/api/logout` | `POST` | Cierra sesión eliminando cookie. |
+| `/api/session` | `GET` | Valida sesión activa y refresca ventana de inactividad. |
+| `/api/profile` | `PUT` | Actualiza nombre, apellido o contraseña del usuario autenticado. |
+| `/api/contact` | `POST` | Guarda mensajes del formulario de contacto. |
+| `/api/forgot-password` | `POST` | Genera token temporal y envía correo de recuperación. |
+| `/api/reset-password` | `POST` | Restablece contraseña y elimina token temporal. |
+| `/api/verify-email` | `GET` | Verifica correo mediante token. |
 
-Codigos usados:
+Codigos HTTP usados:
 
-- `200`: operacion correcta.
-- `201`: registro creado.
-- `400`: solicitud invalida o token invalido.
-- `401`: no autenticado, correo no registrado o contraseña invalida.
-- `403`: correo sin confirmar, cuenta bloqueada o usuario sin permisos.
+- `200`: operación correcta.
+- `201`: recurso creado.
+- `400`: solicitud inválida o token inválido.
+- `401`: no autenticado o credenciales inválidas.
+- `403`: correo sin confirmar, bloqueo o permisos insuficientes.
 - `409`: correo duplicado.
-- `422`: validacion fallida.
-- `500`: error interno o configuracion faltante.
+- `422`: error de validación.
+- `500`: error interno o configuración faltante.
+
+## Seguridad
+
+Medidas existentes:
+
+- Hash de contraseñas con bcrypt.
+- Política de contraseña robusta en frontend y backend.
+- Validación de datos en frontend y backend.
+- JWT firmado con `JWT_SECRET`.
+- Cookie `HttpOnly`, `Secure` y `SameSite=Lax`.
+- Expiración por inactividad de 15 minutos.
+- Bloqueo temporal por intentos fallidos.
+- Verificación obligatoria de correo.
+- Tokens temporales para recuperación de contraseña.
+- Eliminación de tokens al completar recuperación.
+- Protección de dashboard mediante `/api/session`.
+- Consultas a Supabase a través de filtros estructurados, reduciendo riesgo de SQL Injection.
+- Uso de `textContent` en mensajes dinámicos del frontend para reducir riesgo XSS.
+- Variables de entorno para secretos.
+- HTTPS provisto por Vercel en producción.
+
+## SMTP Gmail
+
+1. Activa verificación en dos pasos en Gmail.
+2. Genera una contraseña de aplicación.
+3. Configura `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS` y `MAIL_FROM_NAME`.
+4. En producción no se muestran enlaces debug si SMTP falta.
+
+## Docker
+
+Construir imagen:
+
+```bash
+docker build -t nexcore-web .
+```
+
+Ejecutar con Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+El contenedor expone el sitio en:
+
+```text
+http://localhost:3000
+```
+
+El contenedor usa Vercel CLI para conservar el comportamiento de rutas `/api`.
 
 ## Despliegue en Vercel
 
-1. Sube el proyecto a GitHub.
-2. En Vercel, importa el repositorio.
+1. Sube el proyecto a un repositorio Git.
+2. Importa el repositorio en Vercel.
 3. Configura las variables de entorno.
-4. Ejecuta el despliegue.
-5. Verifica que `/api/session` responda JSON y que `index.html` cargue correctamente.
+4. Despliega.
+5. Verifica que `index.html` cargue y que `/api/session` devuelva JSON.
 
 ## Dominio personalizado
 
 1. En Vercel entra a Project Settings > Domains.
-2. Agrega tu dominio, por ejemplo `nexcore.com`.
-3. Configura los registros DNS que Vercel indique:
-   - `A` para dominio raiz, o
-   - `CNAME` para subdominio como `www`.
-4. Espera la propagacion DNS.
-5. Confirma que Vercel emita HTTPS automaticamente.
+2. Agrega el dominio.
+3. Configura los registros DNS indicados por Vercel.
+4. Espera propagación DNS.
+5. Confirma que HTTPS quede activo.
 
-## Pruebas recomendadas
+## Pruebas
 
-1. Registro: crea una cuenta con contraseña fuerte.
-2. Verificacion: confirma el correo desde el enlace recibido.
-3. Admin: marca tu usuario como `is_admin = true`.
-4. Login: prueba correo incorrecto, contraseña incorrecta y cuenta bloqueada.
-5. Dashboard: entra, espera inactividad y confirma redireccion al login.
-6. Perfil: cambia nombre, apellido y contraseña.
-7. Recuperacion: solicita enlace y restablece contraseña.
-8. Contacto: envia un mensaje desde `index.html` y revisa `contact_messages`.
+La documentación de pruebas funcionales está en:
 
-## Archivos principales
+```text
+docs/testing/pruebas-funcionales.md
+```
 
-- `index.html`: landing principal.
-- `login.html`, `register.html`, `dashboard.html`: autenticacion y panel.
-- `forgot_password.html`, `reset_password.html`, `verificar.html`: flujos de correo.
-- `aviso-privacidad.html`, `politicas.html`: documentos legales.
-- `js/app.js`: logica frontend de auth.
-- `js/main.js`: interacciones de la landing.
-- `api/_lib/*`: helpers compartidos.
-- `api/*.js`: web services serverless.
-- `supabase_schema.sql`: esquema de base de datos.
+Actualmente no se detectaron pruebas automatizadas configuradas en `package.json`.
+
+## Manual de usuario
+
+El manual para usuarios finales está en:
+
+```text
+docs/manual-usuario.md
+```
+
+## Notas de mantenimiento
+
+- No exponer `SUPABASE_SERVICE_ROLE_KEY` en frontend.
+- Ejecutar `supabase_schema.sql` al actualizar campos de seguridad.
+- Mantener `JWT_SECRET` largo, privado y distinto entre ambientes.
+- Revisar periódicamente políticas de contraseña y bloqueo.
