@@ -9,7 +9,13 @@ async function api(path, options = {}) {
 }
 const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
 const formData = form => Object.fromEntries([...new FormData(form)].map(([key, value]) => [key, typeof value === 'string' ? value.trim() : value]));
-function showAlert(message, type = 'success', target = document.querySelector('#appAlert')) { target.textContent = message; target.className = `form-alert show ${type}`; setTimeout(() => target.classList.remove('show'), 4500); }
+function showAlert(message, type = 'success', target = document.querySelector('#appAlert')) {
+  const alertTarget = target || document.querySelector('#appAlert');
+  if (!alertTarget) return;
+  alertTarget.textContent = message;
+  alertTarget.className = `form-alert show ${type}`;
+  setTimeout(() => alertTarget.classList.remove('show'), 4500);
+}
 function empty(message) { return `<div class="empty-state"><b>Sin resultados</b><p>${escapeHtml(message)}</p></div>`; }
 function formatDate(value) { return value ? new Intl.DateTimeFormat('es-MX', { dateStyle: 'medium' }).format(new Date(`${value}T12:00:00`)) : 'Sin fecha'; }
 
