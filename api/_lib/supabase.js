@@ -44,6 +44,14 @@ export async function selectOne(table, filters = {}, select = '*') {
   return rows?.[0] || null;
 }
 
+export async function selectMany(table, filters = {}, select = '*', options = {}) {
+  const query = { select };
+  for (const [key, value] of Object.entries(filters)) query[key] = String(value).includes('.') ? value : `eq.${value}`;
+  if (options.order) query.order = options.order;
+  if (options.limit) query.limit = String(options.limit);
+  return request('GET', table, query);
+}
+
 export async function insert(table, payload) {
   const rows = await request('POST', table, {}, payload, { Prefer: 'return=representation' });
   return rows?.[0] || null;

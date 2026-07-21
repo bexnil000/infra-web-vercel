@@ -48,10 +48,6 @@ export default async function handler(req, res) {
       return json(res, 403, { ok: false, message: 'Debes confirmar tu correo antes de iniciar sesión.' });
     }
 
-    if (!user.is_admin) {
-      return json(res, 403, { ok: false, message: 'Tu cuenta no tiene permisos de administrador.' });
-    }
-
     await update('users', { id: user.id }, {
       failed_login_attempts: 0,
       locked_until: null,
