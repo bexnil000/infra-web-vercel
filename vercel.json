@@ -2,6 +2,27 @@
   "version": 2,
   "routes": [
     {
+      "src": "/api/collaboration",
+      "dest": "/api/dashboard?collaboration=1"
+    },
+    {
+      "src": "/(composer\\.(json|lock)|supabase_schema\\.sql|README\\.md|\\.htaccess|storage/.*|.*\\.php)",
+      "status": 404
+    },
+    {
+      "src": "/$",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
+}
+{
+  "version": 2,
+  "routes": [
+    {
       "src": "/(composer\\.(json|lock)|supabase_schema\\.sql|README\\.md|\\.htaccess|storage/.*|.*\\.php)",
       "status": 404
     },
