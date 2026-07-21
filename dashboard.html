@@ -15,6 +15,7 @@
       <button class="app-nav-link active" data-view="overview"><span>⌂</span><b>Inicio</b></button>
       <button class="app-nav-link" data-view="projects"><span>▦</span><b>Mis proyectos</b></button>
       <button class="app-nav-link" data-view="tasks"><span>✓</span><b>Mis tareas</b></button>
+      <button class="app-nav-link" data-view="team"><span>♥</span><b>Equipo</b></button>
       <button class="app-nav-link" data-view="profile"><span>○</span><b>Perfil</b></button>
       <button class="app-nav-link" data-view="settings"><span>⚙</span><b>Configuración</b></button>
     </nav>
@@ -25,7 +26,7 @@
     <header class="app-topbar">
       <button class="icon-button mobile-menu" id="mobileMenu" aria-label="Abrir menú">☰</button>
       <label class="global-search"><span>⌕</span><input id="globalSearch" type="search" placeholder="Buscar proyectos o tareas…" aria-label="Búsqueda global" /></label>
-      <div class="topbar-actions"><button class="icon-button" id="themeToggle" aria-label="Cambiar tema">◐</button><div class="avatar" data-user-initials>NC</div><span data-user-short>Cargando…</span></div>
+      <div class="topbar-actions"><button class="icon-button notification-button" id="notificationToggle" aria-label="Notificaciones">●<span id="notificationCount">0</span></button><button class="icon-button" id="themeToggle" aria-label="Cambiar tema">◐</button><div class="avatar" data-user-initials>NC</div><span data-user-short>Cargando…</span></div>
     </header>
 
     <main class="app-content" aria-live="polite">
@@ -46,6 +47,11 @@
       <section class="app-view" data-view-panel="tasks">
         <div class="view-heading"><div><span class="section-label">Flujo de trabajo</span><h1>Mis tareas</h1><p>Arrastra una tarjeta para cambiar su estado.</p></div><button class="btn-primary" data-open-task>+ Nueva tarea</button></div>
         <div class="kanban" id="kanban"></div>
+      </section>
+
+      <section class="app-view" data-view-panel="team">
+        <div class="view-heading"><div><span class="section-label">Colaboración</span><h1>Equipo y actividad</h1><p>Invita colaboradores, define roles y revisa avisos.</p></div></div>
+        <div class="dashboard-columns"><article class="app-panel"><h2>Agregar colaborador</h2><form id="inviteForm" class="stack-form"><select class="form-input" name="project_id" required></select><input class="form-input" type="email" name="email" placeholder="correo@empresa.com" required /><select class="form-input" name="role"><option value="manager">Responsable</option><option value="collaborator" selected>Colaborador</option><option value="viewer">Solo lectura</option></select><button class="btn-primary" type="submit">Agregar al equipo</button></form><div id="memberList" class="compact-list"></div></article><article class="app-panel"><h2>Notificaciones</h2><div id="notificationList" class="compact-list"></div></article></div>
       </section>
 
       <section class="app-view" data-view-panel="profile">
@@ -73,6 +79,7 @@
 
   <dialog id="projectDialog" class="app-dialog"><form method="dialog" class="dialog-card" id="projectForm"><div class="dialog-head"><h2>Nuevo proyecto</h2><button value="cancel" aria-label="Cerrar">×</button></div><div class="form-alert"></div><label class="form-group"><span>Nombre *</span><input class="form-input" name="name" minlength="2" maxlength="120" required /></label><label class="form-group"><span>Descripción</span><textarea class="form-input" name="description" maxlength="1000"></textarea></label><div class="form-grid"><label class="form-group"><span>Estado</span><select class="form-input" name="status"><option value="planning">Planeación</option><option value="active">Activo</option><option value="paused">Pausado</option><option value="completed">Completado</option><option value="archived">Archivado</option></select></label><label class="form-group"><span>Prioridad</span><select class="form-input" name="priority"><option value="low">Baja</option><option value="medium">Media</option><option value="high">Alta</option><option value="urgent">Urgente</option></select></label><label class="form-group"><span>Inicio</span><input class="form-input" type="date" name="start_date" /></label><label class="form-group"><span>Fecha límite</span><input class="form-input" type="date" name="due_date" /></label></div><button class="btn-primary" type="submit" value="default">Crear proyecto</button></form></dialog>
   <dialog id="taskDialog" class="app-dialog"><form method="dialog" class="dialog-card" id="taskForm"><div class="dialog-head"><h2>Nueva tarea</h2><button value="cancel" aria-label="Cerrar">×</button></div><div class="form-alert"></div><label class="form-group"><span>Proyecto *</span><select class="form-input" name="project_id" required></select></label><label class="form-group"><span>Título *</span><input class="form-input" name="title" minlength="2" maxlength="160" required /></label><label class="form-group"><span>Descripción</span><textarea class="form-input" name="description" maxlength="2000"></textarea></label><div class="form-grid"><label class="form-group"><span>Estado</span><select class="form-input" name="status"><option value="pending">Pendiente</option><option value="in_progress">En proceso</option><option value="review">En revisión</option><option value="completed">Completada</option></select></label><label class="form-group"><span>Prioridad</span><select class="form-input" name="priority"><option value="low">Baja</option><option value="medium">Media</option><option value="high">Alta</option><option value="urgent">Urgente</option></select></label><label class="form-group"><span>Inicio</span><input class="form-input" type="date" name="start_date" /></label><label class="form-group"><span>Fecha límite</span><input class="form-input" type="date" name="due_date" /></label></div><button class="btn-primary" type="submit" value="default">Crear tarea</button></form></dialog>
+  <aside class="nexbot" id="nexbot"><button class="nexbot-face" id="nexbotToggle" aria-label="Abrir asistente NEXI"><span class="nexbot-antenna"></span><span class="nexbot-eyes">• •</span><span class="nexbot-smile">⌣</span></button><section class="nexbot-card" id="nexbotCard" hidden><header><b>NEXI</b><button id="nexbotClose" aria-label="Cerrar asistente">×</button></header><p id="nexbotTip">¡Hola! Soy NEXI. Puedo darte ideas para organizar tu trabajo.</p><div class="nexbot-actions"><button data-bot-tip>Otro consejo</button><button data-bot-action>¿Qué hago ahora?</button></div></section></aside>
   <script type="module" src="js/dashboard.js"></script>
 </body>
 </html>
