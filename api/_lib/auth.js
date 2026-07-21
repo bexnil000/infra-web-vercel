@@ -36,21 +36,25 @@ export function readToken(req) {
   return found ? decodeURIComponent(found.slice(COOKIE.length + 1)) : null;
 }
 
-export async function requireAdmin(req) {
+export async function requireUser(req) {
   const token = readToken(req);
   if (!token) return null;
 
   try {
     const session = jwt.verify(token, secret());
-    if (!session?.is_admin) return null;
     if (!session.idle_expires_at || session.idle_expires_at < Math.floor(Date.now() / 1000)) return null;
-    const user = await selectOne('users', { id: session.id }, 'id,first_name,last_name,email,is_admin,correo_verificado,created_at,password');
-    if (!user || !user.is_admin || !user.correo_verificado) return null;
+    const user = await selectOne('users', { id: session.id }, 'id,first_name,last_name,email,is_admin,correo_verificado,created_at,last_login_at,password,username,phone,city,company,job_title,bio,website');
+    if (!user || !user.correo_verificado) return null;
     user.__remember = Boolean(session.remember);
     return user;
   } catch {
     return null;
   }
+}
+
+export async function requireAdmin(req) {
+  const user = await requireUser(req);
+  return user?.is_admin ? user : null;
 }
 
 export function refreshSessionCookie(user) {
