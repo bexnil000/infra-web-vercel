@@ -273,4 +273,13 @@ docs/manual-usuario.md
 - No exponer `SUPABASE_SERVICE_ROLE_KEY` en frontend.
 - Ejecutar `supabase_schema.sql` al actualizar campos de seguridad.
 - Mantener `JWT_SECRET` largo, privado y distinto entre ambientes.
+- Ejecutar `migrations/20260719_project_management.sql` después de `supabase_schema.sql` para habilitar perfil, proyectos y tareas.
+
+## Gestión de proyectos y tareas
+
+Todo usuario con correo verificado puede acceder a su dashboard; `is_admin` se conserva para operaciones administrativas y no puede modificarse desde el frontend. El panel incluye perfil ampliado, métricas reales, CRUD de proyectos y tareas, Kanban, búsqueda con debounce y tema persistente.
+
+La autenticación es propia (cookie JWT), no Supabase Auth. Las tablas privadas revocan acceso a `anon` y `authenticated`; las funciones Vercel usan la service role solo en servidor y validan sesión y `owner_id` en cada operación. Nunca expongas esa clave en el navegador.
+
+APIs nuevas: `/api/dashboard`, `/api/projects` y `/api/tasks`. Ejecuta `npm test` y `npm run build`. Consulta `IMPLEMENTATION_REPORT.md` para las fases pendientes.
 - Revisar periódicamente políticas de contraseña y bloqueo.
